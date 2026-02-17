@@ -115,6 +115,10 @@ if uploaded_file:
     # --------------------------------------------------
     # MATRIZ ESTRATÉGICA
     # --------------------------------------------------
+    # --------------------------------------------------
+# MATRIZ ESTRATÉGICA (VERSÃO ROBUSTA)
+# --------------------------------------------------
+
     st.subheader("🧠 Matriz Estratégica de Portfólio")
 
     df_prod = (
@@ -127,7 +131,18 @@ if uploaded_file:
         .reset_index()
     )
 
-    df_prod["Margem %"] = df_prod["Lucro"] / df_prod["Valor Total Liquido"] * 100
+    # Evitar divisão por zero
+    df_prod = df_prod[df_prod["Valor Total Liquido"] != 0]
+
+    df_prod["Margem %"] = (
+        df_prod["Lucro"] / df_prod["Valor Total Liquido"]
+    ) * 100
+
+    # Garantir tamanho positivo
+    df_prod["Quantidade Ajustada"] = df_prod["Quantidade"].abs()
+
+    # Substituir zeros por valor mínimo para evitar erro visual
+    df_prod["Quantidade Ajustada"] = df_prod["Quantidade Ajustada"].replace(0, 1)
 
     margem_mediana = df_prod["Margem %"].median()
     venda_mediana = df_prod["Valor Total Liquido"].median()
@@ -149,47 +164,49 @@ if uploaded_file:
         x="Valor Total Liquido",
         y="Margem %",
         color="Categoria Estratégica",
-        size="Quantidade",
+        size="Quantidade Ajustada",
         hover_data=["DESCRICAO"],
         title="Matriz Estratégica"
     )
 
     st.plotly_chart(fig_matriz, use_container_width=True)
 
+
     st.divider()
 
-    # --------------------------------------------------
-    # GERADORES E DESTRUIDORES DE VALOR
-    # --------------------------------------------------
+        # --------------------------------------------------
+        # GERADORES E DESTRUIDORES DE VALOR
+        # --------------------------------------------------
     st.subheader("🏆 Top 10 Geradores de Lucro")
 
     top_lucro = (
-        df.groupby('DESCRICAO')['Lucro']
-        .sum()
-        .sort_values(ascending=False)
-        .head(10)
-        .reset_index()
-    )
+            df.groupby('DESCRICAO')['Lucro']
+            .sum()
+            .sort_values(ascending=False)
+            .head(10)
+            .reset_index()
+        )
 
     fig_top = px.bar(top_lucro, x='Lucro', y='DESCRICAO',
-                     orientation='h', color='Lucro')
+                        orientation='h', color='Lucro')
     fig_top.update_layout(yaxis={'categoryorder':'total ascending'})
     st.plotly_chart(fig_top, use_container_width=True)
 
     st.subheader("⚠️ Top 10 Destruidores de Valor")
 
     piores = (
-        df.groupby('DESCRICAO')['Prejuízo Total']
-        .sum()
-        .sort_values()
-        .head(10)
-        .reset_index()
-    )
+            df.groupby('DESCRICAO')['Prejuízo Total']
+            .sum()
+            .sort_values()
+            .head(10)
+            .reset_index()
+        )
 
     fig_piores = px.bar(piores, x='Prejuízo Total', y='DESCRICAO',
-                        orientation='h', color='Prejuízo Total',
-                        color_continuous_scale='Reds')
+                            orientation='h', color='Prejuízo Total',
+                            color_continuous_scale='Reds')
     fig_piores.update_layout(yaxis={'categoryorder':'total ascending'})
+    
     st.plotly_chart(fig_piores, use_container_width=True)
 
     st.divider()
