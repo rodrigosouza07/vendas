@@ -26,7 +26,6 @@ def carregar_dados(uploaded_file):
     })
 
     return data
-
 # --------------------------------------------------
 # SIDEBAR
 # --------------------------------------------------
@@ -111,13 +110,9 @@ if uploaded_file:
     st.plotly_chart(fig_abc, use_container_width=True)
 
     st.divider()
-
     # --------------------------------------------------
-    # MATRIZ ESTRATÉGICA
+    # MATRIZ ESTRATÉGICA (VERSÃO ROBUSTA)
     # --------------------------------------------------
-    # --------------------------------------------------
-# MATRIZ ESTRATÉGICA (VERSÃO ROBUSTA)
-# --------------------------------------------------
 
     st.subheader("🧠 Matriz Estratégica de Portfólio")
 
